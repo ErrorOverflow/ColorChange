@@ -1,0 +1,32 @@
+import cv2 as cv
+import numpy as np
+
+params = {
+    'red': [240, 15, 15],
+    'yellow': [255, 255, 0],
+    'green': [0, 255, 0],
+    'blue': [0, 0, 255],
+    'gray': [128, 128, 128],
+    'white': [255, 255, 255],
+    'black': [0, 0, 0]
+}
+
+
+def color_change(img, pixel, color):
+    r = np.average(img[70:90, 60:90][0])
+    g = np.average(img[70:90, 60:90][1])
+    b = np.average(img[70:90, 60:90][2])
+    for x in range(70, 90):
+        for y in range(60, 90):
+            img[x, y][0] = (params.get(color)[0] + img[x, y][0]-r)
+            img[x, y][1] = (params.get(color)[1] + img[x, y][1]-r)
+            img[x, y][2] = (params.get(color)[2] + img[x, y][2]-r)
+    cv.imshow("wee", img)
+    cv.waitKey(0)
+    return 0
+
+
+if __name__ == '__main__':
+    img = cv.imread('image/img000001.png')
+    pixel = [[1 for __ in range(img.shape[0])] for _ in range(img.shape[1])]
+    color_change(img, pixel, 'blue')
