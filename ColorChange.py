@@ -1,32 +1,41 @@
 import cv2 as cv
 import numpy as np
 
-params = {
-    'red': [240, 15, 15],
-    'yellow': [255, 255, 0],
-    'green': [0, 255, 0],
-    'blue': [0, 0, 255],
-    'gray': [128, 128, 128],
-    'white': [255, 255, 255],
-    'black': [0, 0, 0]
-}
+
+def his_match(src, dst):
+    res = np.zeros_like(dst)
+    # cdf 为累计分布
+    cdf_src = np.zeros((3, 256))
+    cdf_dst = np.zeros((3, 256))
+    cdf_res = np.zeros((3, 256))
+    kw = dict(bins=256, range=(0, 256), normed=True)
+    for ch in range(3):
+        his_src, _ = np.histogram(src[:, :, ch], **kw)
+        hist_dst, _ = np.histogram(dst[:, :, ch], **kw)
+        cdf_src[ch] = np.cumsum(his_src)
+        cdf_dst[ch] = np.cumsum(hist_dst)
+        index = np.searchsorted(cdf_src[ch], cdf_dst[ch], side='left')
+        np.clip(index, 0, 255, out=index)
+        res[:, :, ch] = index[dst[:, :, ch]]
+        his_res, _ = np.histogram(res[:, :, ch], **kw)
+        cdf_res[ch] = np.cumsum(his_res)
+    return res, (cdf_src, cdf_dst, cdf_res)
 
 
-def color_change(img, pixel, color):
-    r = np.average(img[70:90, 60:90][0])
-    g = np.average(img[70:90, 60:90][1])
-    b = np.average(img[70:90, 60:90][2])
-    for x in range(70, 90):
-        for y in range(60, 90):
-            img[x, y][0] = (params.get(color)[0] + img[x, y][0]-r)
-            img[x, y][1] = (params.get(color)[1] + img[x, y][1]-r)
-            img[x, y][2] = (params.get(color)[2] + img[x, y][2]-r)
-    cv.imshow("wee", img)
-    cv.waitKey(0)
-    return 0
+src = cv.imread('C:/Users/WML/PycharmProjects/ColorChange/image/image000001.jpg')
+# src = cv.imread('flower.jpg')
+# src = cv.imread('summer.jpg')
+dst = cv.imread('C:/Users/WML/PycharmProjects/ColorChange/image/orange.jpg')
+# dst = cv.imread('greentree.jpg')
 
 
-if __name__ == '__main__':
-    img = cv.imread('image/img000001.png')
-    pixel = [[1 for __ in range(img.shape[0])] for _ in range(img.shape[1])]
-    color_change(img, pixel, 'blue')
+# src = cv.imread('autumn.jpg')
+# dst = cv.imread('greentree.jpg')
+
+cv.imshow('src', src)
+cv.imshow('dst', dst)
+res, cdfs = his_match(src, dst)
+cv.imshow('res', res)
+
+print(cdfs[0].shape)
+cv.waitKey(0)
