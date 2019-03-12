@@ -22,15 +22,8 @@ def his_match(src, dst):
     return res, (cdf_src, cdf_dst, cdf_res)
 
 
-src = cv.imread('C:/Users/WML/PycharmProjects/ColorChange/image/image000001.jpg')
-# src = cv.imread('flower.jpg')
-# src = cv.imread('summer.jpg')
+src = cv.imread('C:/Users/WML/PycharmProjects/ColorChange/image/img000001.png')
 dst = cv.imread('C:/Users/WML/PycharmProjects/ColorChange/image/orange.jpg')
-# dst = cv.imread('greentree.jpg')
-
-
-# src = cv.imread('autumn.jpg')
-# dst = cv.imread('greentree.jpg')
 
 cv.imshow('src', src)
 cv.imshow('dst', dst)
