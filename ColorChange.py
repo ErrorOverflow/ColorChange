@@ -1,10 +1,9 @@
 import cv2 as cv
 import numpy as np
-import operator
 
 params = {
-    'red': 0,
-    'orange': 11
+    'blue': 0,
+    'yellow': 180
 }
 
 
@@ -17,24 +16,31 @@ def color_change(img, img_hsv, color):
             b = img[x, y][2]
             max = np.max(img[x, y])
             min = np.min(img[x, y])
-            if max == min:
-                h = 0
-            elif np.argmax(img[x, y]) == 0 and g >= b:
-                h = 60 * (g - b) / (max - min)
-            elif np.argmax(img[x, y]) == 0 and g < b:
-                h = 60 * (g - b) / (max - min) + 360
-            elif np.argmax(img[x, y]) == 1:
-                h = 60 * (b - r) / (max - min) + 120
-            else:
-                h = 60 * (r - g) / (max - min) + 240
             if max == 0:
                 s = 0
             else:
                 s = 1 - min / max
             v = max
-            h = params.get(color)
-            img_hsv[x, y] = [h, s, v]
-    cv.imshow('res', img_hsv)
+            h = 180
+            hi = int(h / 60) % 6
+            f = h / 60 - hi
+            p = v * (1 - s)
+            q = v * (1 - f * s)
+            t = v * (1 - (1 - f) * s)
+            if hi == 0:
+                img[x, y] = [v, t, p]
+            elif hi == 1:
+                img[x, y] = [q, v, p]
+            elif hi == 2:
+                img[x, y] = [p, v, t]
+            elif hi == 3:
+                img[x, y] = [p, q, v]
+            elif hi == 4:
+                img[x, y] = [t, p, v]
+            elif hi == 5:
+                img[x, y] = [v, p, q]
+    cv.imshow('res', img)
+    cv.imwrite('yellow.jpg', img, None)
     cv.waitKey(0)
     return 0
 
@@ -42,4 +48,4 @@ def color_change(img, img_hsv, color):
 if __name__ == '__main__':
     img = cv.imread('image/img.jpg')
     img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-    color_change(img, img_hsv, 'red')
+    color_change(img, img_hsv, 'orange')
