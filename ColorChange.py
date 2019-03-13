@@ -3,17 +3,17 @@ import numpy as np
 
 params = {
     'blue': 0,
-    'yellow': 180
+    'yellow': 180,
+    'green': 90,
+    'red': 270
 }
 
 
-def color_change(img, img_hsv, color):
-    # solve h
-    for x in range(img.shape[1]):
-        for y in range(img.shape[0]):
-            r = img[x, y][0]
-            g = img[x, y][1]
-            b = img[x, y][2]
+def color_change(img, binary_map, color):
+    for x in range(img.shape[0]):
+        for y in range(img.shape[1]):
+            if binary_map[x][y] == 0:
+                continue
             max = np.max(img[x, y])
             min = np.min(img[x, y])
             if max == 0:
@@ -21,7 +21,7 @@ def color_change(img, img_hsv, color):
             else:
                 s = 1 - min / max
             v = max
-            h = 180
+            h = params.get(color)
             hi = int(h / 60) % 6
             f = h / 60 - hi
             p = v * (1 - s)
@@ -46,6 +46,7 @@ def color_change(img, img_hsv, color):
 
 
 if __name__ == '__main__':
-    img = cv.imread('image/img.jpg')
-    img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-    color_change(img, img_hsv, 'orange')
+    img = cv.imread('image/img.png')
+    #传入的二值图，和img的长宽一样
+    binary_map = [[1 for __ in range(img.shape[1])] for _ in range(img.shape[0])]
+    color_change(img, binary_map, 'red')
